@@ -1,4 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Geolocation , Position} from '@capacitor/geolocation';
+import { constants } from 'buffer';
 
 @Component({
   selector: 'app-home',
@@ -13,38 +15,59 @@ export class HomePage {
   //Cria uma variavel para o Maps
   map!: google.maps.Map;
 
-  constructor() {}
+  constructor() { }
 
-  async exibirMapa(){
+  async exibirMapa() {
 
     // The location of Uluru
-  const position = { lat: -22.463255, lng:  -48.562072 };
+    const position = { lat: -22.463255, lng: -48.562072 };
 
-  // Request needed libraries.
-  //@ts-ignore
-  const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
-  const { AdvancedMarkerElement} = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
+    // Request needed libraries.
+    //@ts-ignore
+    const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
+    // The map, centered at Uluru
+    this.map = new Map(
+      this.mapRef.nativeElement,
+      {
+        zoom: 4,
+        center: position,
+        mapId: 'DEMO_MAP_ID',
+      }
+    );
 
-  // The map, centered at Uluru
-  this.map = new Map(
-    this.mapRef.nativeElement,
-    {
-      zoom: 4,
-      center: position,
-      mapId: 'DEMO_MAP_ID',
-    }
-  );
-
-  // The marker, positioned at Uluru
-  const marker = new AdvancedMarkerElement({
-    map: this.map,
-    position: position,
-    title: 'Uluru'
-  });
+    this.buscarLocalizacao();
   }
 
-  ionViewWillEnter(){
+  ionViewWillEnter() {
     this.exibirMapa();
+  }
+
+  async buscarLocalizacao() {
+    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
+    const coordinates = await Geolocation.getCurrentPosition({enableHighAccuracy: true});
+    console.log('Current position:', coordinates);
+
+    this.map.setCenter({
+      lat: coordinates.coords.latitude,
+      lng: coordinates.coords.longitude
+    });
+
+    this.map.setZoom(18);
+
+    this.adicionaMarcador(coordinates);
+    
+  }
+ async adicionaMarcador(position:Position){
+    const{ AdvancedMarkerElement} = await google.maps.importLibrary("marker")as google.maps.MarkerLibrary;
+    const marker = new AdvancedMarkerElement({
+      map: this.map,
+      position:{
+        lat: position.coords.latitude,
+      lng: position.coords.longitude
+
+      },
+      title: 'Marcador'
+    });
   }
 
 }
