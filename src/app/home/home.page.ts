@@ -1,6 +1,5 @@
 import { Component, ElementRef, NgZone, ViewChild } from '@angular/core';
 import { Geolocation, Position } from '@capacitor/geolocation';
-import { constants } from 'buffer';
 
 @Component({
   selector: 'app-home',
@@ -30,12 +29,9 @@ export class HomePage {
     // The location of Uluru
     const position = { lat: -22.463255, lng: -48.562072 };
 
-    // Request needed libraries.
-    //@ts-ignore
-    const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
 
     // The map, centered at Uluru
-    this.map = new Map(
+    this.map = new google.maps.Map(
       this.mapRef.nativeElement,
       {
         zoom: 4,
@@ -68,9 +64,10 @@ export class HomePage {
     this.adicionaMarcador(this.minhaPosicao);
 
   }
+
   async adicionaMarcador(position: google.maps.LatLng) {
-    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
-    const marker = new AdvancedMarkerElement({
+
+    const marker = new google.maps.Marker({
       map: this.map,
       position: position,
       title: 'Marcador'
